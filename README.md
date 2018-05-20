@@ -1,6 +1,6 @@
 # AcademicChatterBot
 
-A twitter bot that retweets the following hashtags [in order of search preference] based on Twitter's API rate limits:
+A twitter bot that retweets the following hashtags [listed in order of bot search preference]. Retweets are timed based on the Twitter API rate limits:
 
 -phdchat
 -acwri 
