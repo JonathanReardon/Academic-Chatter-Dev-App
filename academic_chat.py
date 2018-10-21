@@ -27,7 +27,7 @@ while running == True:
                                result_type="recent",
                                lang='en').items(1):
 
-	if tweet.user.screen_name == "@dannyroyfl" or tweet.user.screen_name == "@floridabear88":
+	if tweet.user.screen_name == "@toblock" or tweet.user.screen_name == "@toblock2":
 		print (tweet.user.screen_name)
 		print ("avoiding spam users")
  		break
@@ -37,7 +37,7 @@ while running == True:
 	    print ("tweet content: ", tweet.text)
             print ("length of original tweet: ", len(tweet.text))
  
-	    if "#bigdick" in tweet.text or "#bigcock" in tweet.text or "bigdick" in tweet.text or "bigcock" in tweet.text or "#testingjon" in tweet.text:
+	    if "#toblock" in tweet.text or "#toblock2" in tweet.text:
 	        print "spam found"
 	        break
 
@@ -71,7 +71,7 @@ while running == True:
 	   	    print ("tweet content: ", tweet.text)
                     print ("length of original tweet: ", len(tweet.text))
  
-	   	    if "#bigdick" in tweet.text or "#bigcock" in tweet.text or "bigdick" in tweet.text or "bigcock" in tweet.text or "#testingjon" in tweet.text:
+	   	    if "#toblock" in tweet.text or "#toblock2" in tweet.text:
 	                print "spam found"
 			break
                 try:
