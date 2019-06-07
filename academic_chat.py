@@ -27,7 +27,8 @@ while running == True:
                                result_type="recent",
                                lang='en').items(1):
 
-	if tweet.user.screen_name == "@toblock" or tweet.user.screen_name == "@toblock2":
+        # users that we don't want to share the tweets of (spam/abuse/troll)
+	if tweet.user.screen_name == "@user-to-block1" or tweet.user.screen_name == "@user-to-block2":
 		print (tweet.user.screen_name)
 		print ("avoiding spam users")
  		break
@@ -37,7 +38,8 @@ while running == True:
 	    print ("tweet content: ", tweet.text)
             print ("length of original tweet: ", len(tweet.text))
  
-	    if "#toblock" in tweet.text or "#toblock2" in tweet.text:
+            # if found tweet contains any of these strings, don't share (block inappropriate content)
+	    if "#inappropriate-word1" in tweet.text or "#inappropriate-word2" in tweet.text:
 	        print "spam found"
 	        break
 
@@ -54,14 +56,13 @@ while running == True:
 		break
 
         if x==0:
-            print "no luck with #phdchat, trying others.."
             y+=1
             for tweet in tweepy.Cursor(api.search,
                                        q=search2,
                                        result_type="recent",
                                        lang='en').items(1):
 
-	        if tweet.user.screen_name == "@dannyroyfl" or tweet.user.screen_name == "@floridabear88":
+	        if tweet.user.screen_name == "@user-to-block1" or tweet.user.screen_name == "@user-to-block2":
 		    print (tweet.user.screen_name)
 		    print ("avoiding spam users")
  		    break
@@ -71,7 +72,7 @@ while running == True:
 	   	    print ("tweet content: ", tweet.text)
                     print ("length of original tweet: ", len(tweet.text))
  
-	   	    if "#toblock" in tweet.text or "#toblock2" in tweet.text:
+	   	    if "#inappropriate-word1" in tweet.text or "#inappropriate-word2" in tweet.text:
 	                print "spam found"
 			break
                 try:
