@@ -1,6 +1,6 @@
 # AcademicChatterBot
 
-A Twitter development application that retweets tweets containing the following content [listed in order of bot search preference]. Retweets are timed based on the Twitter API rate limits:
+A Twitter development application that retweets tweets containing the following content [listed in order of search preference]. Retweets are timed based on the Twitter API rate limits:
 
 - @AcademicChatter
 - #academicchatter
