@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import tweepy
 import time
 from time import sleep
