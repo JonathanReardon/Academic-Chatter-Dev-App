@@ -71,7 +71,7 @@ while running == True:
 		        RateLimitCounter1+=1
 
 	        except tweepy.TweepError as e:
-		        print (e)
+		        print(e)
 		        if 'Failed to send request' in e.reason:
 		        time.sleep(240)
             except StopIteration:
