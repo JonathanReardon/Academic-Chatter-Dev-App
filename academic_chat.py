@@ -26,6 +26,7 @@ search2  = ("#phdchat OR #academictwitter OR #acwri OR #ecrchat OR #phdadvice OR
 # add troll/abusive/exploitative accounts to this list never to share them
 never_share = ["@account not to share 1", "@account not to share 2"]
 
+# main loop
 running = True
 while running == True:
 
@@ -47,7 +48,8 @@ while running == True:
     for tweet in tweepy.Cursor(api.search,
                                q=search1,
                                result_type="recent",
-                               lang='en').items(1):
+                               lang='en',
+                               tweet_mode='extended').items(1):
 
          # if found tweet was shared by one of these users (spam/abuse/troll), then don't share (break loop) 
         if tweet.user.screen_name in never_share:
@@ -57,25 +59,25 @@ while running == True:
         if RateLimitCounter1==0:
             # information for output logs
 	    print("username: ", tweet.user.screen_name)
-            print("tweet content: ", tweet.text)
-            print("length of original tweet: ", len(tweet.text))
+            print("tweet content: ", tweet.full_text)
+            print("length of original tweet: ", len(tweet.full_text))
  
             # if found tweet contains any of these strings, don't share (block inappropriate content)
-	    if "#inappropriate-word1" in tweet.text or "#inappropriate-word2" in tweet.text:
-	        print "spam found"
+	    if "#inappropriate-word1" in tweet.full_text or "#inappropriate-word2" in tweet.full_text:
+	        print("spam found")
 	        break
 
             RateLimitCounter2+=1
             try:
-	        tweet.retweet()
-	        RateLimitCounter1+=1
+	            tweet.retweet()
+	            RateLimitCounter1+=1
 
 	    except tweepy.TweepError as e:
 	        print(e)
 	        if 'Failed to send request' in e.reason:
 	           time.sleep(240)
             except StopIteration:
-	        break
+	            break
 
         if RateLimitCounter1==0:
             print("second search..")
@@ -84,31 +86,32 @@ while running == True:
             for tweet in tweepy.Cursor(api.search,
                                        q=search2,
                                        result_type="recent",
-                                       lang='en').items(1):
+                                       lang='en',
+                                       tweet_mode='extended').items(1):
                 
-                 # if found tweet was shared by one of these users (spam/abuse/troll), then don't share (break loop)
-                 if tweet.user.screen_name in never_share:
+                # if found tweet was shared by one of these users (spam/abuse/troll), then don't share (break loop)
+                if tweet.user.screen_name in never_share:
                     print("Avoiding spam user: ", tweet.user.screen_name)
                     break
 
-        	if RateLimitCounter1==0:
+        	    if RateLimitCounter1==0:
                     # useful for output logs
-	   	    print ("tweet content: ", tweet.text)
-                    print ("length of original tweet: ", len(tweet.text))
+	   	            print ("tweet content: ", tweet.full_text)
+                    print ("length of original tweet: ", len(tweet.full_text))
  
-                    # if found tweet contains any of these strings, don't share (block inappropriate content)
-	   	    if "#inappropriate-word1" in tweet.text or "#inappropriate-word2" in tweet.text:
+                # if found tweet contains any of these strings, don't share (block inappropriate content)
+	   	        if "#inappropriate-word1" in tweet.text or "#inappropriate-word2" in tweet.full_text:
 	                print "spam found"
-		        break
+		            break
                 try:
-		    tweet.retweet()
-		    RateLimitCounter1+=1
+		            tweet.retweet()
+		            RateLimitCounter1+=1
                     RateLimitCounter2+=1
 
-		except tweepy.TweepError as e:
-		    print(e)
-		    if 'Failed to send request' in e.reason:
-		        time.sleep(240)
+		        except tweepy.TweepError as e:
+		            print(e)
+		        if 'Failed to send request' in e.reason:
+		            time.sleep(240)
                 except StopIteration:
                     break
                     
