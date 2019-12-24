@@ -69,15 +69,15 @@ while running == True:
 
             RateLimitCounter2+=1
             try:
-	            tweet.retweet()
-	            RateLimitCounter1+=1
+	         tweet.retweet()
+	         RateLimitCounter1+=1
 
 	    except tweepy.TweepError as e:
 	        print(e)
 	        if 'Failed to send request' in e.reason:
-	           time.sleep(240)
-            except StopIteration:
-	            break
+	             time.sleep(240)
+             except StopIteration:
+	         break
 
         if RateLimitCounter1==0:
             print("second search..")
@@ -94,24 +94,24 @@ while running == True:
                     print("Avoiding spam user: ", tweet.user.screen_name)
                     break
 
-        	    if RateLimitCounter1==0:
+        	 if RateLimitCounter1==0:
                     # useful for output logs
-	   	            print ("tweet content: ", tweet.full_text)
+	   	    print ("tweet content: ", tweet.full_text)
                     print ("length of original tweet: ", len(tweet.full_text))
  
                 # if found tweet contains any of these strings, don't share (block inappropriate content)
-	   	        if "#inappropriate-word1" in tweet.text or "#inappropriate-word2" in tweet.full_text:
-	                print "spam found"
-		            break
+	   	 if "#inappropriate-word1" in tweet.text or "#inappropriate-word2" in tweet.full_text:
+	             print("spam found")
+		     break
                 try:
-		            tweet.retweet()
-		            RateLimitCounter1+=1
+		    tweet.retweet()
+		    RateLimitCounter1+=1
                     RateLimitCounter2+=1
 
-		        except tweepy.TweepError as e:
-		            print(e)
-		        if 'Failed to send request' in e.reason:
-		            time.sleep(240)
+	         except tweepy.TweepError as e:
+		     print(e)
+		     if 'Failed to send request' in e.reason:
+		         time.sleep(240)
                 except StopIteration:
                     break
                     
