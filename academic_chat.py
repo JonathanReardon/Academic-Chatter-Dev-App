@@ -1,32 +1,31 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import tweepy
 import time
 from time import sleep
 import datetime
 import sys
+import random
 
-# insert Twitter Dev App security keys and tokens
-consumer_key        = "***************************"
-consumer_secret     = "**************************************************"
-access_token        = "**************************************************"
-access_token_secret = "**************************************************"
+from keys import keys
+from ignore import accounts_to_skip
 
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
+CONSUMER_KEY = keys['consumer_key']
+CONSUMER_SECRET = keys['consumer_secret']
+ACCESS_TOKEN = keys['access_token']
+ACCESS_TOKEN_SECRET = keys['access_token_secret']
+
+auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
 api = tweepy.API(auth,wait_on_rate_limit=True)
 
 # set search content, we prioritize tweets that have tagged Academic Chatter directly (search 1)
 search1  = ("@AcademicChatter OR #academicchatter OR #acchat -filter:retweets AND -filter:replies")
 
-# if we don't find tweets that included our tag then we search for general academic twitter hashtags 
-search2  = ("#phdchat OR #academictwitter OR #acwri OR #ecrchat OR #phdadvice OR #phdlife OR #gradschool -filter:retweets AND -filter:replies")
+# if we don't find tweets that include our tag then we search for general academic twitter hashtags 
+search2  = ("#phdchat OR #academictwitter -filter:retweets AND -filter:replies")
 
-# add troll/abusive/exploitative accounts to this list never to share them
-never_share = ["@account not to share 1", "@account not to share 2"]
-
-# main loop
 running = True
 while running == True:
 
@@ -34,96 +33,115 @@ while running == True:
     random.shuffle(x)
     print("first element of x:", x[0])
 
-    if x[0]<8:
+    if x[0]<9:
         search_lists = [search1, search2]
         print(search_lists[0])
-    elif x[0] >= 8:
+    else:
         search_lists = [search2, search1]
         print(search_lists[0])
 
-    RateLimitCounter1=0
-    RateLimitCounter2=0
-
-    # first search for tweets containing Academic Chatter tags (Search 1)
+    x=0
+    y=0
     for tweet in tweepy.Cursor(api.search,
-                               q=search1,
-                               result_type="recent",
-                               lang='en',
-                               tweet_mode='extended').items(1):
+                                q=search_lists[0],
+                                result_type="recent",
+                                lang='en',
+                                tweet_mode='extended').items(1):
 
-         # if found tweet was shared by one of these users (spam/abuse/troll), then don't share (break loop) 
-        if tweet.user.screen_name in never_share:
-	    print("Avoiding spam user: ", tweet.user.screen_name)
+        print("tweet 1 content: ", tweet.full_text)
+
+        if tweet.user.screen_name in accounts_to_skip:
+            print("Avoiding spam user: ", tweet.user.screen_name)
+            break
+        if tweet.full_text in accounts_to_skip:
+            print("Avoiding spam user: ", tweet.user.screen_name)
             break
 
-        if RateLimitCounter1==0:
-            # information for output logs
-	    print("username: ", tweet.user.screen_name)
-            print("tweet content: ", tweet.full_text)
-            print("length of original tweet: ", len(tweet.full_text))
- 
-            # if found tweet contains any of these strings, don't share (block inappropriate content)
-	    if "#inappropriate-word1" in tweet.full_text or "#inappropriate-word2" in tweet.full_text:
-	        print("spam found")
-	        break
+        if x==0:
+            for account in accounts_to_skip:
+                if account in tweet.full_text:
+                    print("SPAM FOUND")
+                    break
 
-            RateLimitCounter2+=1
+            if tweet.full_text.count("@") > 6:
+                print("TOO MANY @ TAGS, SPAM ALERT")
+                print("SPAM TWEET: ", tweet.full_text)
+                break
+
+            if tweet.full_text.count("#") > 6:
+                print("TOO MANY HASH TAGS, SPAM ALERT")
+                print("SPAM TWEET: ", tweet.full_text)
+                break
+
+            y+=1
             try:
-	         tweet.retweet()
-	         RateLimitCounter1+=1
+                tweet.retweet()
+                x+=1
 
-	    except tweepy.TweepError as e:
-	        print(e)
-	        if 'Failed to send request' in e.reason:
-	             time.sleep(240)
-             except StopIteration:
-	         break
+            except tweepy.TweepError as e:
+                print(e)
+                if 'Failed to send request' in e.reason:
+                    time.sleep(240)
+            except StopIteration:
+                break
 
-        if RateLimitCounter1==0:
+        if x==0:
             print("second search..")
-            RateLimitCounter2+=1
-            # second search for tweets containing general academic twitter hashtags (search 2)
+            y+=1
             for tweet in tweepy.Cursor(api.search,
-                                       q=search2,
-                                       result_type="recent",
-                                       lang='en',
-                                       tweet_mode='extended').items(1):
-                
-                # if found tweet was shared by one of these users (spam/abuse/troll), then don't share (break loop)
-                if tweet.user.screen_name in never_share:
+                                        q=search_lists[1],
+                                        result_type="recent",
+                                        lang='en',
+                                        tweet_mode='extended').items(1):
+
+                print("tweet 2 content: ", tweet.full_text)
+
+                if tweet.user.screen_name in accounts_to_skip:
+                    print("Avoiding spam user: ", tweet.user.screen_name)
+                    break
+                    
+                if tweet.full_text in accounts_to_skip:
                     print("Avoiding spam user: ", tweet.user.screen_name)
                     break
 
-        	 if RateLimitCounter1==0:
-                    # useful for output logs
-	   	    print ("tweet content: ", tweet.full_text)
-                    print ("length of original tweet: ", len(tweet.full_text))
- 
-                # if found tweet contains any of these strings, don't share (block inappropriate content)
-	   	 if "#inappropriate-word1" in tweet.text or "#inappropriate-word2" in tweet.full_text:
-	             print("spam found")
-		     break
-                try:
-		    tweet.retweet()
-		    RateLimitCounter1+=1
-                    RateLimitCounter2+=1
+                if x==0:
+                    print("username: ", tweet.user.screen_name)
+                    print("tweet content is: ", tweet.full_text)
 
-	         except tweepy.TweepError as e:
-		     print(e)
-		     if 'Failed to send request' in e.reason:
-		         time.sleep(240)
+                    for account in accounts_to_skip:
+                        if account in tweet.full_text:
+                            print("SPAM FOUND")
+                            break
+
+                    if tweet.full_text.count("@") > 6:
+                        print("TOO MANY @ TAGS, SPAM ALERT")
+                        print("SPAM TWEET: ", tweet.full_text)
+                        break
+
+                    if tweet.full_text.count("#") > 6:
+                        print("TOO MANY HASH TAGS, SPAM ALERT")
+                        print("SPAM TWEET: ", tweet.full_text)
+                        break
+                try:
+                    tweet.retweet()
+                    x+=1
+                    y+=1
+
+                except tweepy.TweepError as e:
+                    print(e)
+                    if 'Failed to send request' in e.reason:
+                        time.sleep(240)
                 except StopIteration:
                     break
-                    
     # 2 searches but found nothing to share
-    if RateLimitCounter2==2:
-        time.sleep(600)
-        print("Did 2 searches but found nothing to share - sleeping for 600 seconds (10 mins)")
-    # 2 searches and 1 share on the second search
-    elif RateLimitCounter2==3:
+    if y == 2:
         time.sleep(800)
-        print("Did 2 searches but found something to share on the second search - sleeping for 800 seconds (15 mins)")
+        print("Completed two searches: nothing to share - sleeping for 600 seconds (10 mins)")
+    # 2 searches and 1 share on the second search
+    elif y==3:
+        time.sleep(800)
+        print("Completed two searches and found something to share on the second search - sleeping for 800 seconds (13 mins)")
     # 1 search and 1 share
     else:
         time.sleep(800)
-        print("Did 1 search and found tweet to share that tagged the account directly - sleeping for 800 seconds (15 mins)")
+        print("Completed one search and found @academicchatter / #academicchatter to share - sleeping for 800 seconds (13 mins)")
